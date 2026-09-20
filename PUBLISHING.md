@@ -2,11 +2,11 @@
 
 This directory is self-contained. Keep private development history, environment records, test media, credentials and build logs outside it.
 
-## Before the first public upload
+## Source repository
 
-1. Confirm the GitHub owner and repository name, select the project license, add its complete `LICENSE` text and preserve applicable upstream workflow notices.
-2. Set `[project.urls].Repository` to the actual GitHub URL in `pyproject.toml`, and add `license = { file = "LICENSE" }` under `[project]`.
-3. Commit this directory's reviewed contents and push `main` to that repository. Verify the remote file list. Do not upload the development workspace.
+The intended source repository is [Richard-Wang-fs/ComfyUI-RichardsVideoKits](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits). RVK uses PolyForm Noncommercial 1.0.0; preserve `LICENSE`, `NOTICE.md` and the upstream template MIT notice when distributing it. This is source-available software, not an OSI-approved open source project.
+
+Commit only this directory's reviewed contents and push `main`. Verify the remote commit and file list before announcing availability.
 
 ## Make the node discoverable in Manager
 
@@ -24,7 +24,7 @@ Older Manager installations can use a separate metadata database. If legacy disc
 
 ## Current prerequisites
 
-- GitHub owner/repository: not supplied.
-- Project license: pending. The upstream workflow template MIT notice is included under `licenses/`.
+- GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`; creation and first upload pending.
+- Project license: PolyForm Noncommercial 1.0.0. Upstream workflow template MIT notice included under `licenses/`.
 - Registry publisher and publishing secret: not configured.
 - GitHub upload, Registry publish and Manager installation: not performed.

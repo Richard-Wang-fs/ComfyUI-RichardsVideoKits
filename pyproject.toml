@@ -3,12 +3,13 @@ name = "richards-video-kits"
 version = "1.0.0"
 description = "ComfyUI video segment saving, Wan Animate 2 loops, and final assembly with source audio"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.12,<3.13"
 dependencies = []
 classifiers = ["Operating System :: Microsoft :: Windows"]
-# Add license = { file = "LICENSE" } after the owner selects the license.
-
-# Add [project.urls] with the actual GitHub Repository before publication.
+[project.urls]
+Repository = "https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits"
+"Bug Tracker" = "https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/issues"
 
 [tool.comfy]
 DisplayName = "Richard's Video Kits"

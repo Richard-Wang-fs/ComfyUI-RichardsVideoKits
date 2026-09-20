@@ -34,3 +34,9 @@
 - 不保存恢复张量或永久图片序列，不自动恢复生成，不下载模型。通用 Save 和 Finalize 可独立使用。
 
 详细操作与音轨约束见[示例说明](examples/wan_animate2/README.md)，待完成的发布配置见 [PUBLISHING](PUBLISHING.md)。
+
+## 许可证
+
+RVK 自有代码采用 [PolyForm Noncommercial 1.0.0](LICENSE)，属于**非商业用途的源码可见软件**，并非 OSI 定义的开源许可。该许可不授予商业使用权；如需商用，请联系 [Richard-Wang-fs](https://github.com/Richard-Wang-fs) 获取单独授权。
+
+上游官方工作流模板部分保留原 [MIT 声明](licenses/ComfyUI-workflow-templates-MIT.txt)。软件许可证不授予模型、输入素材或生成媒体的权利，其适用条款另行遵守。

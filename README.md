@@ -56,3 +56,9 @@ Files ending in `.partial.mp4` are incomplete outputs. Investigate the reported 
 - No persistent tensors, image sequences, automatic generation resume, model downloads or bundled weights.
 
 ComfyUI baseline: [`v0.36.0`, `ee71d5c4993f29086b27fde1629a945ae48425bf`](https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.36.0). See [NOTICE](NOTICE.md) for workflow attribution and [PUBLISHING](PUBLISHING.md) for remaining publication steps.
+
+## License
+
+RVK's original code is available under the [PolyForm Noncommercial License 1.0.0](LICENSE). This is **source-available software for noncommercial purposes**, not an OSI-approved open source license. Commercial use is not granted by this license; contact [Richard-Wang-fs](https://github.com/Richard-Wang-fs) for separate permission.
+
+The upstream workflow template material retains its [MIT notice](licenses/ComfyUI-workflow-templates-MIT.txt). The software license does not grant rights in model weights, input media or generated media; their applicable terms remain separate.
