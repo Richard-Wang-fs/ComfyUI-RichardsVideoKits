@@ -4,7 +4,7 @@
 
 一组 ComfyUI 视频节点：逐段保存视频、用一份可编辑的官方 Wan Animate 2 单段图自动处理驱动视频，并将完整片段合成为带原视频声音的成品。
 
-当前代码版本为 **1.0.0**。这是稳定运行代码的独立发布候选仓库；GitHub 和 Comfy Registry 尚未发布，目前不能通过 Manager 搜索安装。
+当前代码版本为 **1.0.0**。本仓库包含稳定运行代码、用户说明和示例工作流。Comfy Registry 尚未发布，目前不能通过 Manager 搜索安装。
 
 ## 安装
 
@@ -14,6 +14,14 @@
 2. 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无需额外 pip 安装。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
 3. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点。
 4. 导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
+
+首次安装可在 ComfyUI 停止时，从 ComfyUI 根目录执行：
+
+```sh
+git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custom_nodes/ComfyUI-RichardsVideoKits
+```
+
+如果已经以其他目录名安装过 RVK，先停止 ComfyUI，将旧插件目录移到 `custom_nodes` 外保留备份，再克隆，避免两份插件重复加载。已保存视频仍位于 ComfyUI 的 output 目录。
 
 ## 使用
 

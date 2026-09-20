@@ -4,7 +4,7 @@ This directory is self-contained. Keep private development history, environment 
 
 ## Source repository
 
-The intended source repository is [Richard-Wang-fs/ComfyUI-RichardsVideoKits](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits). RVK uses PolyForm Noncommercial 1.0.0; preserve `LICENSE`, `NOTICE.md` and the upstream template MIT notice when distributing it. This is source-available software, not an OSI-approved open source project.
+The source repository is [Richard-Wang-fs/ComfyUI-RichardsVideoKits](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits). RVK uses PolyForm Noncommercial 1.0.0; preserve `LICENSE`, `NOTICE.md` and the upstream template MIT notice when distributing it. This is source-available software, not an OSI-approved open source project.
 
 Commit only this directory's reviewed contents and push `main`. Verify the remote commit and file list before announcing availability.
 
@@ -13,8 +13,8 @@ Commit only this directory's reviewed contents and push `main`. Verify the remot
 GitHub hosting and Comfy Registry publication are separate steps. Follow the official [publishing guide](https://docs.comfy.org/registry/publishing) and [metadata specification](https://docs.comfy.org/registry/specifications).
 
 1. Create a publisher on [Comfy Registry](https://registry.comfy.org/) and put its exact identifier in `[tool.comfy].PublisherId`. The publisher identifier and node name become permanent identities; confirm them before the first publish.
-2. Create a Registry publishing API key. Store it as the GitHub repository Actions secret `REGISTRY_ACCESS_TOKEN`; never commit it or paste it into issues or chat.
-3. Once the source, license and metadata are complete, publish with the official Comfy CLI (`comfy node publish`) from a separately prepared publishing environment, or configure the official GitHub [publish-node-action](https://github.com/Comfy-Org/publish-node-action). No publishing tools are installed by this package.
+2. Create a Registry publishing API key. Store it as the GitHub repository Actions secret `REGISTRY_ACCESS_TOKEN` in [repository Actions secrets](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/settings/secrets/actions); never commit it or paste it into issues or chat.
+3. Commit the real PublisherId to `pyproject.toml` and push it to `main`. Open [Publish to Comfy Registry](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/actions/workflows/publish-registry.yml), select **Run workflow** on `main`, and enter the version exactly as declared in `pyproject.toml` (initially `1.0.0`). The included workflow validates the metadata and secret, then uses the official [publish-node-action](https://github.com/Comfy-Org/publish-node-action). It only runs manually; ordinary pushes do not publish. Publishing tools run on GitHub's runner, not in your ComfyUI environment.
 4. Check the published version and Registry review status, then verify that Manager can find **Richard's Video Kits** / **richards-video-kits**, install it into a clean supported ComfyUI instance, and expose all five nodes and both frontend assets.
 5. Update the README publication status only after those checks succeed. A successful GitHub push alone is not proof of Manager discovery or installation.
 
@@ -24,7 +24,7 @@ Older Manager installations can use a separate metadata database. If legacy disc
 
 ## Current prerequisites
 
-- GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`; creation and first upload pending.
+- GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`.
 - Project license: PolyForm Noncommercial 1.0.0. Upstream workflow template MIT notice included under `licenses/`.
 - Registry publisher and publishing secret: not configured.
-- GitHub upload, Registry publish and Manager installation: not performed.
+- Registry publication and Manager installation verification: not performed.

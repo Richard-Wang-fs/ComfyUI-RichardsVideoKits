@@ -6,7 +6,7 @@ ComfyUI nodes for saving video segments, running an editable Wan Animate 2 workf
 
 Configure one Motion Transfer graph and queue once. RVK saves each completed segment before queuing the next, keeping continuation in memory. Completed videos survive a stopped run; generation does not resume from disk checkpoints.
 
-Version: **1.0.0**. This is a release candidate repository for the stable runtime. GitHub publication and Comfy Registry listing are pending; Manager search installation is not available yet.
+Version: **1.0.0**. This repository contains the stable runtime, user documentation and example workflows. Comfy Registry publication is pending; Manager search installation is not available yet.
 
 ## Nodes
 
@@ -28,6 +28,14 @@ The tested configuration is **Windows / NTFS, Python 3.12, ComfyUI v0.36.0, fron
 4. Import [the loop workflow](examples/wan_animate2/wan_animate2_rvk_loop.json).
 
 Once this project is published to Comfy Registry, installation through Manager will become a separate supported route. Registry publication status must be checked before using that route.
+
+For a fresh installation, run this from your ComfyUI directory while ComfyUI is stopped:
+
+```sh
+git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custom_nodes/ComfyUI-RichardsVideoKits
+```
+
+If you already have RVK installed under another directory name, stop ComfyUI and move that installation outside `custom_nodes` before cloning. Keep it as a backup; loading two copies can cause conflicts. Your videos remain in ComfyUI's output directory.
 
 ## Quick start
 

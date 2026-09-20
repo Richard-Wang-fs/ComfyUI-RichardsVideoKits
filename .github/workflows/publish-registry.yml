@@ -1,0 +1,58 @@
+name: Publish to Comfy Registry
+
+"on":
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version in pyproject.toml to publish (for example, 1.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: comfy-registry-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the selected commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Validate publication inputs
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import tomllib
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          require(os.environ.get("GITHUB_REF") == "refs/heads/main", "Publish from main.")
+          data = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+          require(data["project"]["version"] == os.environ["EXPECTED_VERSION"], "Version must match pyproject.toml.")
+          publisher = data.get("tool", {}).get("comfy", {}).get("PublisherId", "")
+          require(isinstance(publisher, str) and publisher.strip(), "Set the registered PublisherId in pyproject.toml first.")
+          require(data["project"]["urls"]["Repository"] == "https://github.com/" + os.environ["GITHUB_REPOSITORY"], "Repository metadata must match this repository.")
+          require(Path("LICENSE").is_file(), "LICENSE is missing.")
+          require(os.environ.get("REGISTRY_ACCESS_TOKEN", "").strip(), "Configure the REGISTRY_ACCESS_TOKEN repository secret first.")
+          print("Publication metadata is ready.")
+          PY
+
+      - name: Publish the node version
+        uses: Comfy-Org/publish-node-action@d2366e7abb6ab16f3bb03e3520ae25c8cf749bc9
+        with:
+          skip_checkout: "true"
+          personal_access_token: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
