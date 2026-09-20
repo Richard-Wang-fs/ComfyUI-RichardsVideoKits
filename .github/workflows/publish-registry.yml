@@ -1,6 +1,9 @@
 name: Publish to Comfy Registry
 
 "on":
+  push:
+    tags:
+      - "v[0-9]*"
   workflow_dispatch:
     inputs:
       version:
@@ -24,6 +27,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Validate publication inputs
         env:
@@ -34,15 +38,23 @@ jobs:
           python3 - <<'PY'
           import os
           from pathlib import Path
+          import subprocess
           import tomllib
 
           def require(condition, message):
               if not condition:
                   raise SystemExit(message)
 
-          require(os.environ.get("GITHUB_REF") == "refs/heads/main", "Publish from main.")
           data = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
-          require(data["project"]["version"] == os.environ["EXPECTED_VERSION"], "Version must match pyproject.toml.")
+          version = data["project"]["version"]
+          event = os.environ.get("GITHUB_EVENT_NAME")
+          ref = os.environ.get("GITHUB_REF")
+          if event == "workflow_dispatch":
+              require(ref == "refs/heads/main", "Publish manually from main.")
+              require(version == os.environ["EXPECTED_VERSION"], "Version must match pyproject.toml.")
+          else:
+              require(event == "push" and ref == "refs/tags/v" + version, "Release tag must match the version in pyproject.toml.")
+          require(subprocess.run(["git", "merge-base", "--is-ancestor", "HEAD", "origin/main"], check=False, capture_output=True).returncode == 0, "Release commit must belong to main.")
           publisher = data.get("tool", {}).get("comfy", {}).get("PublisherId", "")
           require(isinstance(publisher, str) and publisher.strip(), "Set the registered PublisherId in pyproject.toml first.")
           require(data["project"]["urls"]["Repository"] == "https://github.com/" + os.environ["GITHUB_REPOSITORY"], "Repository metadata must match this repository.")

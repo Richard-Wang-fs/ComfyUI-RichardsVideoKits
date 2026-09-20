@@ -12,6 +12,6 @@ Repository = "https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits"
 "Bug Tracker" = "https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/issues"
 
 [tool.comfy]
+PublisherId = "richard34512"
 DisplayName = "Richard's Video Kits"
 requires-comfyui = "==0.36.0"
-# Add the registered PublisherId before publishing to Comfy Registry.
