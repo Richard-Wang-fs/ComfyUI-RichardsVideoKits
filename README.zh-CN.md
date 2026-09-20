@@ -4,16 +4,16 @@
 
 一组 ComfyUI 视频节点：逐段保存视频、用一份可编辑的官方 Wan Animate 2 单段图自动处理驱动视频，并将完整片段合成为带原视频声音的成品。
 
-当前代码版本为 **1.0.0**。本仓库包含稳定运行代码、用户说明和示例工作流。Comfy Registry 尚未发布，目前不能通过 Manager 搜索安装。
+当前代码版本为 **1.0.0**。本仓库包含稳定运行代码、用户说明和示例工作流，已发布到 [Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits)。当前版本的 ComfyUI Manager 可搜索 **Richard's Video Kits** 或 `richards-video-kits` 安装。
 
 ## 安装
 
 已验证环境：**Windows / NTFS、Python 3.12、ComfyUI v0.36.0、frontend 1.52.7、`--cache-classic`**。真实 Wan 使用 RTX 4080 验证。其他组合尚未验证。
 
-1. 停止 ComfyUI，将本仓库放到 `ComfyUI/custom_nodes/` 下的一个独立目录。该目录直接包含 `__init__.py`、`rvk/` 和 `web/`，避免多嵌套一层。只保留一份 RVK 安装。
-2. 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无需额外 pip 安装。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
-3. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点。
-4. 导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
+1. 在当前版本的 ComfyUI Manager 中搜索 **Richard's Video Kits** 或 `richards-video-kits`，安装 `1.0.0` 后重启 ComfyUI。若缓存频道未立即显示新项目，请刷新或切换到远程频道。
+2. 只保留一份 RVK 安装。插件目录应直接包含 `__init__.py`、`rvk/` 和 `web/`，避免多嵌套一层。
+3. RVK 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无额外 pip 依赖。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
+4. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点，然后导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
 
 首次安装可在 ComfyUI 停止时，从 ComfyUI 根目录执行：
 
@@ -41,7 +41,7 @@ git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custo
 - 约三分钟完整资源曲线、执行中中断、超过 30 分钟的单段、其他文件系统和默认 RAM-pressure cache 的同等内存表现尚未验证。
 - 不保存恢复张量或永久图片序列，不自动恢复生成，不下载模型。通用 Save 和 Finalize 可独立使用。
 
-详细操作与音轨约束见[示例说明](examples/wan_animate2/README.md)，待完成的发布配置见 [PUBLISHING](PUBLISHING.md)。
+详细操作与音轨约束见[示例说明](examples/wan_animate2/README.md)，发布维护说明见 [PUBLISHING](PUBLISHING.md)。
 
 ## 许可证
 

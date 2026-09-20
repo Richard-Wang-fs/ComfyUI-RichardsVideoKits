@@ -6,7 +6,7 @@ ComfyUI nodes for saving video segments, running an editable Wan Animate 2 workf
 
 Configure one Motion Transfer graph and queue once. RVK saves each completed segment before queuing the next, keeping continuation in memory. Completed videos survive a stopped run; generation does not resume from disk checkpoints.
 
-Version: **1.0.0**. This repository contains the stable runtime, user documentation and example workflows. Comfy Registry publication is pending; Manager search installation is not available yet.
+Version: **1.0.0**. This repository contains the stable runtime, user documentation and example workflows. It is published in the [Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits) and available to current ComfyUI Manager versions as **Richard's Video Kits** / `richards-video-kits`.
 
 ## Nodes
 
@@ -22,12 +22,10 @@ Version: **1.0.0**. This repository contains the stable runtime, user documentat
 
 The tested configuration is **Windows / NTFS, Python 3.12, ComfyUI v0.36.0, frontend 1.52.7**, with `--cache-classic`. Wan inference was tested on an RTX 4080. Other configurations have not been validated.
 
-1. Stop ComfyUI. Put this repository in one directory under `ComfyUI/custom_nodes/`. Its `__init__.py`, `rvk/`, and `web/` must be directly inside that directory. Keep only one RVK installation.
-2. Use ComfyUI's existing Python environment with PyAV, NumPy and PyTorch. RVK adds no pip installation step. For final assembly, ensure that **FFmpeg with AAC encoding** is available on the ComfyUI process's `PATH`; FFmpeg 7.0.2 was tested.
-3. Start ComfyUI with `--cache-classic`, refresh the browser, and search for the five nodes above.
-4. Import [the loop workflow](examples/wan_animate2/wan_animate2_rvk_loop.json).
-
-Once this project is published to Comfy Registry, installation through Manager will become a separate supported route. Registry publication status must be checked before using that route.
+1. In a current ComfyUI Manager, search for **Richard's Video Kits** or `richards-video-kits`, install version `1.0.0`, then restart ComfyUI. If a cached channel does not show a newly published entry, refresh it or use the remote channel.
+2. Keep only one RVK installation. Its `__init__.py`, `rvk/`, and `web/` must be directly inside one directory under `ComfyUI/custom_nodes/`.
+3. RVK uses PyAV, NumPy and PyTorch from ComfyUI's existing environment and adds no pip dependencies. For final assembly, ensure that **FFmpeg with AAC encoding** is available on the ComfyUI process's `PATH`; FFmpeg 7.0.2 was tested.
+4. Start ComfyUI with `--cache-classic`, refresh the browser, search for the five nodes above, and import [the loop workflow](examples/wan_animate2/wan_animate2_rvk_loop.json).
 
 For a fresh installation, run this from your ComfyUI directory while ComfyUI is stopped:
 
@@ -63,7 +61,7 @@ Files ending in `.partial.mp4` are incomplete outputs. Investigate the reported 
 - Input must be file-backed CFR video with an exactly representable frame timeline. Missing, short or offset audio is rejected by Finalize. Saved segments remain usable when finalization fails.
 - No persistent tensors, image sequences, automatic generation resume, model downloads or bundled weights.
 
-ComfyUI baseline: [`v0.36.0`, `ee71d5c4993f29086b27fde1629a945ae48425bf`](https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.36.0). See [NOTICE](NOTICE.md) for workflow attribution and [PUBLISHING](PUBLISHING.md) for remaining publication steps.
+ComfyUI baseline: [`v0.36.0`, `ee71d5c4993f29086b27fde1629a945ae48425bf`](https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.36.0). See [NOTICE](NOTICE.md) for workflow attribution and [PUBLISHING](PUBLISHING.md) for release maintenance.
 
 ## License
 
