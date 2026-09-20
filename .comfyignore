@@ -1,0 +1,5 @@
+.github/
+PUBLISHING.md
+.gitignore
+.gitattributes
+# Runtime, user documentation, notices, license and examples stay in the archive.

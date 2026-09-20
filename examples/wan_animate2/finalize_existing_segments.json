@@ -1,0 +1,201 @@
+{
+  "id": "821b9d4d-274a-50e7-a79b-28b3c20be146",
+  "revision": 0,
+  "last_node_id": 581,
+  "last_link_id": 864,
+  "nodes": [
+    {
+      "id": 240,
+      "type": "LoadVideo",
+      "pos": [
+        0,
+        180
+      ],
+      "size": [
+        500,
+        860
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "文件",
+          "name": "file",
+          "type": "COMBO",
+          "widget": {
+            "name": "file"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "选择要上传的文件",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "视频",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            864
+          ]
+        }
+      ],
+      "title": "Load Video (Pose Video)",
+      "properties": {
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        "drive.mp4",
+        "image"
+      ],
+      "widgets_values_named": {
+        "file": "street_dance_drive.mp4",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 580,
+      "type": "RVKFinalizeSegments",
+      "pos": [
+        700,
+        180
+      ],
+      "size": [
+        500,
+        250
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "source_video",
+          "name": "source_video",
+          "type": "VIDEO",
+          "link": 864
+        },
+        {
+          "localized_name": "output_directory",
+          "name": "output_directory",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "output_directory"
+          }
+        },
+        {
+          "localized_name": "final_filename",
+          "name": "final_filename",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "final_filename"
+          }
+        },
+        {
+          "localized_name": "loop_status",
+          "name": "loop_status",
+          "type": "RVK_WAN_LOOP_STATUS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "result",
+          "name": "result",
+          "type": "RVK_FINAL_VIDEO_RESULT",
+          "links": []
+        },
+        {
+          "localized_name": "path",
+          "name": "path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "completed",
+          "name": "completed",
+          "type": "BOOLEAN",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RVKFinalizeSegments"
+      },
+      "widgets_values": [
+        "rvk/wan_animate2_new_run",
+        "final.mp4"
+      ]
+    },
+    {
+      "id": 581,
+      "type": "MarkdownNote",
+      "pos": [
+        0,
+        -300
+      ],
+      "size": [
+        1200,
+        360
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": "# Existing segments → final video with audio\n\n1. Select the same untrimmed drive video used for generation. It must contain an audio track covering the full video.\n2. Enter the existing relative segment directory. It must contain a complete contiguous sequence beginning at segment_0000.mp4.\n3. Queue this workflow. It contains no Wan/model node: RVK verifies every segment, joins the video stream once, adds source audio, and publishes final.mp4 without overwriting.\n\nAll segment files are preserved. A missing/gapped/incompatible segment, stale partial, frame-count mismatch, missing/short audio, or existing final target is an explicit error.",
+      "title": "Finalize existing RVK segments without Wan"
+    }
+  ],
+  "links": [
+    [
+      864,
+      240,
+      0,
+      580,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Finalize existing segments only",
+      "bounding": [
+        -30,
+        140,
+        1270,
+        850
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "definitions": {
+    "subgraphs": []
+  },
+  "config": {},
+  "extra": {
+    "frontendVersion": "1.52.7",
+    "ds": {
+      "scale": 0.9,
+      "offset": [
+        240,
+        430
+      ]
+    }
+  },
+  "version": 0.4
+}

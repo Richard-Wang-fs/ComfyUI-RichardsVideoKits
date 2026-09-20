@@ -1,0 +1,2 @@
+# Preserve reviewed bytes, including the upstream workflow JSON line endings.
+* -text

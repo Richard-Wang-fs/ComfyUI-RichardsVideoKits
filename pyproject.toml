@@ -1,0 +1,16 @@
+[project]
+name = "richards-video-kits"
+version = "1.0.0"
+description = "ComfyUI video segment saving, Wan Animate 2 loops, and final assembly with source audio"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+classifiers = ["Operating System :: Microsoft :: Windows"]
+# Add license = { file = "LICENSE" } after the owner selects the license.
+
+# Add [project.urls] with the actual GitHub Repository before publication.
+
+[tool.comfy]
+DisplayName = "Richard's Video Kits"
+requires-comfyui = "==0.36.0"
+# Add the registered PublisherId before publishing to Comfy Registry.
