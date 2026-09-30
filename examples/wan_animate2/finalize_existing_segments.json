@@ -83,7 +83,7 @@
           "link": 864
         },
         {
-          "localized_name": "output_directory",
+          "localized_name": "segment_directory",
           "name": "output_directory",
           "type": "STRING",
           "link": null,
@@ -105,6 +105,15 @@
           "name": "loop_status",
           "type": "RVK_WAN_LOOP_STATUS",
           "link": null
+        },
+        {
+          "localized_name": "output_directory",
+          "name": "destination_directory",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "destination_directory"
+          }
         }
       ],
       "outputs": [
@@ -138,7 +147,8 @@
       },
       "widgets_values": [
         "rvk/wan_animate2_new_run",
-        "final.mp4"
+        "final.mp4",
+        "rvk/wan_animate2_final"
       ]
     },
     {
@@ -160,7 +170,7 @@
       "properties": {
         "Node name for S&R": "MarkdownNote"
       },
-      "widgets_values": "# Existing segments → final video with audio\n\n1. Select the same untrimmed drive video used for generation. It must contain an audio track covering the full video.\n2. Enter the existing relative segment directory. It must contain a complete contiguous sequence beginning at segment_0000.mp4.\n3. Queue this workflow. It contains no Wan/model node: RVK verifies every segment, joins the video stream once, adds source audio, and publishes final.mp4 without overwriting.\n\nAll segment files are preserved. A missing/gapped/incompatible segment, stale partial, frame-count mismatch, missing/short audio, or existing final target is an explicit error.",
+      "widgets_values": "# Existing segments → final video with audio\n\n1. Select the same untrimmed drive video used for generation. It must contain an audio track covering the full video.\n2. Enter the existing relative segment_directory. It must contain a complete contiguous sequence beginning at segment_0000.mp4.\n3. Set output_directory for the final video (default rvk/wan_animate2_final), or leave it blank to save beside the segments.\n4. Queue this workflow. It contains no Wan/model node: RVK verifies every segment, joins the video stream once, adds source audio, and publishes final.mp4 without overwriting.\n\nAll segment files are preserved. A missing/gapped/incompatible segment, stale partial, frame-count mismatch, missing/short audio, or existing final target is an explicit error.",
       "title": "Finalize existing RVK segments without Wan"
     }
   ],

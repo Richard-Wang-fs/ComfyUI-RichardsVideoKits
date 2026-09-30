@@ -4,13 +4,13 @@
 
 一组 ComfyUI 视频节点：逐段保存视频、用一份可编辑的官方 Wan Animate 2 单段图自动处理驱动视频，并将完整片段合成为带原视频声音的成品。
 
-当前源码版本为 **1.1.0**：Finalize 新增标准 `VIDEO` 成品输出，可继续连接后处理。本次更新通过 GitHub 提供；[Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits) 之前发布的版本为 **1.0.0**，尚不包含新增端口。
+当前源码版本仍为 **1.1.0**，包含按视频断点恢复、Entry 节点状态和控制按钮、独立成品目录，以及 Finalize 的标准 `VIDEO` 输出。本次还修复了前端事件处理、旧模块缓存和浏览器计时器造成的续排问题。这些更新通过 GitHub 提供；[Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits) 之前发布的版本为 **1.0.0**，尚不包含这些更新。本次源码更新不发布新的 Registry 版本。
 
 ## 安装
 
-1.1.0 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。本次完成了成品输出的定向 CPU 验证，包括官方 Get Video Components 读取和等待/停止时的下游阻断。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080；未在 v0.38.0 重跑完整 Wan/GPU 验收。
+1.1.0 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。用户已报告该环境正常完成 15 段生成；保存媒体核对为 1173 帧、39.1 秒，含音轨。这是功能运行证据，不等同于完整 GPU 资源或故障恢复验收。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080。
 
-1. 需要 **1.1.0 和新 VIDEO 输出**时，使用下方 GitHub 安装方式。ComfyUI Manager 可搜索 **Richard's Video Kits** 或 `richards-video-kits` 安装 Registry 的 `1.0.0`，该版本尚不包含这次更新。
+1. 需要当前 **1.1.0 源码和恢复界面**时，使用下方 GitHub 安装方式。ComfyUI Manager 可搜索 **Richard's Video Kits** 或 `richards-video-kits` 安装 Registry 的 `1.0.0`，该版本尚不包含这次更新。
 2. 只保留一份 RVK 安装。插件目录应直接包含 `__init__.py`、`rvk/` 和 `web/`，避免多嵌套一层。
 3. RVK 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无额外 pip 依赖。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
 4. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点，然后导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
@@ -25,25 +25,34 @@ git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custo
 
 ## 使用
 
-选择参考图、完整且未裁剪的恒定帧率（CFR）驱动视频、官方模型和 prompt。在 Entry 设置段长及一个新的空输出目录；段长默认 81，可选范围为 5～16381 的 `4k+1`，较长段占用更多内存。保留示例已有连线，只 Queue 一次并保持工作流打开。
+1. 选择参考图、完整且未裁剪的恒定帧率（CFR）驱动视频、官方模型和 prompt。最终成品带音轨时，原视频须有符合要求的音轨。
+2. 在 Entry 设置 `segment_length`，默认 81，可选范围为 5～16381 的 `4k+1`，较长段占用更多内存。保留通往 Motion Transfer 的段长连线。
+3. 只在 Entry 填写一次 `work_directory`，相对于 ComfyUI output。保留其到 Save 和 Finalize 的 `segment_directory` 连线。`new` 要求目录不存在或为空；`resume` 使用之前任务的工作目录。
+4. 在 Finalize 的独立 `output_directory` 填写成品目录；留空表示与片段同目录。工作目录和成品目录可以不同。
+5. 点击 Entry 的“检查/刷新状态”，核对当前及历史参考视频、参考图像文件名，以及已完成帧数、段数和计划总段数。文件名仅供人工核对：系统不比较 token、提示词或输入身份，由用户决定是否继续该目录中的任务。
+6. 只 Queue 一次并保持原工作流打开。运行期间不要编辑图或更换输入；需要停止时点击 Entry 上的“当前片段结束后停止”，已开始的片段可能继续完成。
 
-每段视频保存成功后才续排下一段。运行期间不要编辑图或更换输入；需要停止时点击 Entry 上的 **Stop RVK after current segment**。
+每段视频保存成功后才续排下一段，Entry 状态随运行更新。失败或重启后，选择 `resume`、检查目录并重新 Queue。系统核对连续的完整片段，按实际帧数计算进度，并读取上一段视频的最后一帧衔接；失败段重新生成。恢复帧包含压缩和后处理效果，不保证与未中断运行的原始浮点帧一致，也不恢复模型内部状态。
+
+用户无需填写 `run_token`。工作目录内的 `rvk_progress.json` 是轻量摘要；缺失、落后或损坏时重新核对视频，完整视频决定实际进度。不保存恢复张量或永久图片序列。
 
 独立片段为无声 `segment_0000.mp4` 等文件。全部完成后，Finalize 将视频流无重编码拼接，并把驱动视频第一条音轨编码为 AAC，生成 `final.mp4`。中间片段保留，已有文件不覆盖。
 
 只有 Finalize 新增第四个 `video`（`VIDEO`）输出，引用带音轨的完整成品，可连接需要 VIDEO 的节点，或接 **Get Video Components** 拆出 images / audio / fps。原有 result / path / completed 端口位置保持不变。中间轮次和停止时，视频下游跳过执行；返回 VIDEO 本身不解码整片，下游主动拆帧可能产生完整图像批次。更新并重启 ComfyUI 后刷新浏览器；旧工作流若仍只显示三个输出，请重新添加 Finalize 节点。
 
-重启后若所有片段均完整，可导入[独立成品示例](examples/wan_animate2/finalize_existing_segments.json)，选择同一原始驱动视频并填写片段目录，无需再次运行模型。它不恢复未完成的生成任务；重新生成需使用新的空目录。
+所有片段均完整时，循环图的 `resume` 只运行最终合成，不再运行 Wan。也可导入[独立成品示例](examples/wan_animate2/finalize_existing_segments.json)，选择同一原始驱动视频并填写片段目录、成品目录和文件名。已有成品不覆盖；重新合成时选择其他目标目录或文件名。
+
+更新后重启 ComfyUI 并刷新浏览器，建议先保存旧工作流副本。旧 Entry 的 token 控件迁移为 `mode=new`，旧 token 输出连线断开，其他输出位置保留；继续已有任务时须手动选 `resume`。Finalize 原来的目录输入改为显示 `segment_directory`，仍表示片段来源；新增 `output_directory` 表示成品目标，留空兼容原来的同目录输出。
 
 ## 输入和支持边界
 
 - 视频必须来自文件、为 CFR，且时间基能精确表示帧号。最终合成还要求音轨从视频零点开始并覆盖完整视频；无音轨、明显偏移或音轨不足均明确拒绝，已保存片段不受影响。
-- 缺号、残留 partial、片段不兼容、总帧数不符或成品已存在时停止。`.partial.mp4` 不算成品；确认没有写入进程后，再按报错处理。
-- 已有真实 Wan 三段含短尾、公开 Stop，以及独立 12 段 / 903 帧带 AAC 合成证据。三段短素材本身无音轨，其合成按预期拒绝。
+- 缺号、片段损坏或格式不兼容、累计帧数超过当前驱动视频时拒绝恢复。`.partial.mp4` 不计入进度；恢复取得目录独占后，将明确命名的 RVK 残留分段 partial 移入 `rvk_failed/` 保留。最终成品 partial 仍需确认没有写入进程后人工核对；独立 Finalize 拒绝未处理的 partial。`cleanup_required` 可能表示正式文件与其 partial 链接同时存在。
+- 当前证据包括 CPU/媒体检查、57 项前端回归测试，以及上述用户报告的 15 段完整运行。历史证据包括真实 Wan 三段含短尾、公开 Stop，以及独立 12 段 / 903 帧带 AAC 合成；三段短素材本身无音轨，其合成按预期拒绝。
 - 约三分钟完整资源曲线、执行中中断、超过 30 分钟的单段、其他文件系统和默认 RAM-pressure cache 的同等内存表现尚未验证。
-- 不保存恢复张量或永久图片序列，不自动恢复生成，不下载模型。通用 Save 和 Finalize 可独立使用。
+- 断点恢复由用户显式选择；不下载模型，不附带权重或媒体。通用 Save 和 Finalize 可独立使用。
 
-详细操作与音轨约束见[示例说明](examples/wan_animate2/README.md)，发布维护说明见 [PUBLISHING](PUBLISHING.md)。
+详细操作与音轨约束见[示例说明](examples/wan_animate2/README.md)，维护检查见 [tests](tests/README.md)，发布维护说明见 [PUBLISHING](PUBLISHING.md)。示例仍基于最初验证的 v0.36.0 官方模板；当前运行基线为 v0.38.0，模板归属见 [NOTICE](NOTICE.md)。
 
 ## 许可证
 

@@ -6,7 +6,7 @@ This directory is self-contained. Keep private development history, environment 
 
 The source repository is [Richard-Wang-fs/ComfyUI-RichardsVideoKits](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits). RVK uses PolyForm Noncommercial 1.0.0; preserve `LICENSE`, `NOTICE.md` and the upstream template MIT notice when distributing it. This is source-available software, not an OSI-approved open source project.
 
-Commit only this directory's reviewed contents and push `main`. Verify the remote commit and file list before announcing availability.
+Commit only this directory's reviewed contents and push `main`. Run the [maintainer checks](tests/README.md), then verify the remote commit and file list before announcing availability. The included frontend suite has 57 tests covering loop control, status integration, stale module loading and browser timer behavior; simulated queue tests do not run Wan inference.
 
 ## Make the node discoverable in Manager
 
@@ -24,7 +24,8 @@ Older Manager installations can use a separate metadata database. If legacy disc
 
 ## Current prerequisites
 
-- GitHub source version: `1.1.0`, adding Finalize's standard VIDEO output. This source update does not publish a new Registry package or move the existing `v1.0.0` tag. The 1.1.0 metadata pins ComfyUI `0.38.0`; focused CPU tests do not replace historical full Wan validation.
+- GitHub source version remains `1.1.0`. Current source includes Finalize's standard VIDEO output, explicit new/resume modes, Entry status controls, separate final-output directories and frontend continuation fixes. This source update does not publish a new Registry package or move the existing `v1.0.0` tag. The metadata pins ComfyUI `0.38.0`; tested frontend is `1.53.6` with `--cache-classic`.
+- Current functional evidence includes a user-reported completed 15-segment run, with saved media checked as 1173 frames / 39.1 seconds and audio. This does not establish a full GPU resource profile or comprehensive interruption-recovery validation. See the README for remaining limits.
 - GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`.
 - Project license: PolyForm Noncommercial 1.0.0. Upstream workflow template MIT notice included under `licenses/`.
 - Registry publisher: `richard34512`; the maintainer has configured `REGISTRY_ACCESS_TOKEN` as a GitHub repository secret. Its validity is checked during publication.
