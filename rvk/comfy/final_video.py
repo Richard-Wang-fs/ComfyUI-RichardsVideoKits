@@ -7,6 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from comfy_api.latest import InputImpl, io
+from comfy_execution.graph_utils import ExecutionBlocker
 
 from rvk.errors import AssetInvalid
 from rvk.final_video import FinalVideoResult, finalize_segment_videos, resolve_run_directory
@@ -73,6 +74,10 @@ class RVKFinalizeSegments(io.ComfyNode):
                 RVK_FINAL_VIDEO_RESULT.Output("result"),
                 io.String.Output("path"),
                 io.Boolean.Output("completed"),
+                io.Video.Output(
+                    "video",
+                    tooltip="Completed video with source audio. Downstream nodes wait until finalization succeeds.",
+                ),
             ],
             is_output_node=True,
             not_idempotent=True,
@@ -164,7 +169,9 @@ class RVKFinalizeSegments(io.ComfyNode):
     @staticmethod
     def _output(result: FinalVideoResult) -> io.NodeOutput:
         summary = json.dumps(asdict(result), ensure_ascii=False, sort_keys=True)
-        return io.NodeOutput(result, result.path, result.completed, ui={"text": [summary]})
+        # Keep the existing output slots usable while blocking only the unfinished video branch.
+        video = InputImpl.VideoFromFile(result.path) if result.completed else ExecutionBlocker(None)
+        return io.NodeOutput(result, result.path, result.completed, video, ui={"text": [summary]})
 
 
 __all__ = ["RVKFinalizeSegments", "RVK_FINAL_VIDEO_RESULT", "FinalVideoResult"]

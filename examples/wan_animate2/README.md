@@ -12,6 +12,8 @@ Queue once. Keep the original workflow open and unchanged while RVK queues succe
 
 Each segment is silent. Finalize waits until all frames are complete, then adds the first audio track from the original input. If your input has no audio, segment generation can complete but Finalize reports `source_audio_missing`.
 
+In 1.1.0, only Finalize gains a fourth `video` (`VIDEO`) output. It references the complete video with audio and connects to VIDEO consumers or **Get Video Components** for further processing. Existing result/path/completed slots keep their positions. Intermediate rounds and Stop silently block the video branch, so downstream processing starts only after the final file has been published. Refresh after updating and restarting ComfyUI; re-add an old Finalize node if the new port is missing.
+
 For standalone finalization, select the same untrimmed input video used for generation and point Finalize to the existing segment directory. Segments must start at index zero with no gaps, have compatible video properties, and cover exactly the input's frame count. Existing final files and stale partial files cause an error. No model state is resumed.
 
 The source audio must begin at video time zero, allowing at most two audio samples of timestamp rounding. Larger positive or negative offsets are rejected; RVK does not insert silence, trim or shift audio. The final audio/video end-time difference must be within 100 ms. Final assembly has a 30-minute timeout and observes ComfyUI cancellation.

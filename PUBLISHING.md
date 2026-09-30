@@ -24,6 +24,7 @@ Older Manager installations can use a separate metadata database. If legacy disc
 
 ## Current prerequisites
 
+- GitHub source version: `1.1.0`, adding Finalize's standard VIDEO output. This source update does not publish a new Registry package or move the existing `v1.0.0` tag. The 1.1.0 metadata pins ComfyUI `0.38.0`; focused CPU tests do not replace historical full Wan validation.
 - GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`.
 - Project license: PolyForm Noncommercial 1.0.0. Upstream workflow template MIT notice included under `licenses/`.
 - Registry publisher: `richard34512`; the maintainer has configured `REGISTRY_ACCESS_TOKEN` as a GitHub repository secret. Its validity is checked during publication.

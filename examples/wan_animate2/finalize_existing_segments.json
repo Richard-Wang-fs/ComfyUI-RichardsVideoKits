@@ -125,6 +125,12 @@
           "name": "completed",
           "type": "BOOLEAN",
           "links": []
+        },
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
         }
       ],
       "properties": {

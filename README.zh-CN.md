@@ -4,13 +4,13 @@
 
 一组 ComfyUI 视频节点：逐段保存视频、用一份可编辑的官方 Wan Animate 2 单段图自动处理驱动视频，并将完整片段合成为带原视频声音的成品。
 
-当前代码版本为 **1.0.0**。本仓库包含稳定运行代码、用户说明和示例工作流，已发布到 [Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits)。当前版本的 ComfyUI Manager 可搜索 **Richard's Video Kits** 或 `richards-video-kits` 安装。
+当前源码版本为 **1.1.0**：Finalize 新增标准 `VIDEO` 成品输出，可继续连接后处理。本次更新通过 GitHub 提供；[Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits) 之前发布的版本为 **1.0.0**，尚不包含新增端口。
 
 ## 安装
 
-已验证环境：**Windows / NTFS、Python 3.12、ComfyUI v0.36.0、frontend 1.52.7、`--cache-classic`**。真实 Wan 使用 RTX 4080 验证。其他组合尚未验证。
+1.1.0 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。本次完成了成品输出的定向 CPU 验证，包括官方 Get Video Components 读取和等待/停止时的下游阻断。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080；未在 v0.38.0 重跑完整 Wan/GPU 验收。
 
-1. 在当前版本的 ComfyUI Manager 中搜索 **Richard's Video Kits** 或 `richards-video-kits`，安装 `1.0.0` 后重启 ComfyUI。若缓存频道未立即显示新项目，请刷新或切换到远程频道。
+1. 需要 **1.1.0 和新 VIDEO 输出**时，使用下方 GitHub 安装方式。ComfyUI Manager 可搜索 **Richard's Video Kits** 或 `richards-video-kits` 安装 Registry 的 `1.0.0`，该版本尚不包含这次更新。
 2. 只保留一份 RVK 安装。插件目录应直接包含 `__init__.py`、`rvk/` 和 `web/`，避免多嵌套一层。
 3. RVK 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无额外 pip 依赖。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
 4. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点，然后导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
@@ -30,6 +30,8 @@ git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custo
 每段视频保存成功后才续排下一段。运行期间不要编辑图或更换输入；需要停止时点击 Entry 上的 **Stop RVK after current segment**。
 
 独立片段为无声 `segment_0000.mp4` 等文件。全部完成后，Finalize 将视频流无重编码拼接，并把驱动视频第一条音轨编码为 AAC，生成 `final.mp4`。中间片段保留，已有文件不覆盖。
+
+只有 Finalize 新增第四个 `video`（`VIDEO`）输出，引用带音轨的完整成品，可连接需要 VIDEO 的节点，或接 **Get Video Components** 拆出 images / audio / fps。原有 result / path / completed 端口位置保持不变。中间轮次和停止时，视频下游跳过执行；返回 VIDEO 本身不解码整片，下游主动拆帧可能产生完整图像批次。更新并重启 ComfyUI 后刷新浏览器；旧工作流若仍只显示三个输出，请重新添加 Finalize 节点。
 
 重启后若所有片段均完整，可导入[独立成品示例](examples/wan_animate2/finalize_existing_segments.json)，选择同一原始驱动视频并填写片段目录，无需再次运行模型。它不恢复未完成的生成任务；重新生成需使用新的空目录。
 

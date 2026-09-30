@@ -1,6 +1,6 @@
 [project]
 name = "richards-video-kits"
-version = "1.0.0"
+version = "1.1.0"
 description = "ComfyUI video segment saving, Wan Animate 2 loops, and final assembly with source audio"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -14,4 +14,4 @@ Repository = "https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits"
 [tool.comfy]
 PublisherId = "richard34512"
 DisplayName = "Richard's Video Kits"
-requires-comfyui = "==0.36.0"
+requires-comfyui = "==0.38.0"
