@@ -8,7 +8,7 @@ import {
   finalizeOnlyPrompt,
   formatStatus,
   migrateLegacyWorkflow,
-} from "./wan_loop_core.mjs?v=53471d551522b040";
+} from "./wan_loop_core.mjs?v=1581a5da613d65e6";
 
 const ENTRY_CLASS = "RVKWanLoopEntry";
 const statuses = new Map();
@@ -72,10 +72,11 @@ function inspectPrompt(prompt, path = "/rvk/wan-loop/inspect") {
 }
 
 async function refreshStatus(nodeId = null) {
+  const targets = (app.rootGraph?._nodes ?? []).filter((node) => node.comfyClass === ENTRY_CLASS && (nodeId === null || String(node.id) === String(nodeId)));
+  if (!targets.length) return;
   const workflowId = activeWorkflowId();
   if (!workflowId) return;
   const sequence = ++inspectionSequence;
-  const targets = (app.rootGraph?._nodes ?? []).filter((node) => node.comfyClass === ENTRY_CLASS && (nodeId === null || String(node.id) === String(nodeId)));
   const pending = targets.filter((node) => {
     const running = activeScope(workflowId, node.id);
     setEntryStatus(workflowId, node.id, running?.status ?? { ...unknownInspection(), state: "inspecting" });
@@ -118,12 +119,22 @@ function installQueueHook() {
   if (installed) return;
   installed = true;
   const original = api.queuePrompt;
-  api.queuePrompt = async function(number, supplied, ...args) {
-    let prompt = structuredClone(supplied);
+  api.queuePrompt = function(number, supplied, ...args) {
+    // This API is shared by every workflow. Do not touch unrelated requests,
+    // including their metadata, return values or synchronous error behavior.
+    const hasEntry = Object.values(supplied?.output ?? {}).some((node) => node?.class_type === ENTRY_CLASS);
+    if (!hasEntry) return original.apply(this, arguments);
+    return submitLoop.call(this, number, supplied, args);
+  };
+
+  async function submitLoop(number, supplied, args) {
+    const identity = entryScope(supplied);
+    // ComfyUI serializes the request as JSON and can accept reactive proxies.
+    // Copy only the objects RVK edits; a whole-prompt structuredClone rejects
+    // otherwise valid workflows and is not part of the host API contract.
+    let prompt = { ...supplied, workflow: { ...supplied.workflow, extra: { ...supplied.workflow?.extra } } };
     // Never trust a session serialized by a saved workflow or another extension.
     if (prompt.workflow?.extra) delete prompt.workflow.extra.rvk_runtime;
-    const identity = entryScope(prompt);
-    if (!identity) return original.call(this, number, prompt, ...args);
     const intent = continuationIntent;
     const continuing = intent && !intent.consumed && intent.workflowId === identity.workflowId && intent.entryNodeId === identity.entryNodeId;
     if (intent && !continuing) throw new Error("RVK 续排期间工作流或入口发生变化");
@@ -165,7 +176,7 @@ function installQueueHook() {
       await controller.failSubmission(scope, error.message ?? error);
       throw error;
     }
-  };
+  }
 }
 
 app.registerExtension({
@@ -203,6 +214,8 @@ app.registerExtension({
   },
   async beforeConfigureGraph(workflow) {
     ++inspectionSequence;
+    const graphs = [workflow, ...(workflow?.definitions?.subgraphs ?? [])];
+    if (!graphs.some((graph) => graph?.nodes?.some((node) => node?.type === ENTRY_CLASS))) return;
     if (workflow.extra) delete workflow.extra.rvk_runtime;
     const result = migrateLegacyWorkflow(workflow);
     if (result.migrated) notify("warn", `已迁移 ${result.migrated} 个旧 Loop Entry：移除 run_token，模式设为 new。请按需要选择 resume。${result.removedLinks ? `已断开 ${result.removedLinks} 条旧 token 连线；其他连接保留。` : ""}`);

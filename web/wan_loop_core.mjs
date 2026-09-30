@@ -18,7 +18,7 @@ const isLink = (value) => Array.isArray(value) && value.length === 2 && Number.i
 
 // Only the submitted API graph changes. The editable canvas graph stays intact.
 export function finalizeOnlyPrompt(prompt, entryNodeId, outputDirectory) {
-  const output = structuredClone(prompt.output);
+  const output = { ...prompt.output };
   const candidates = Object.entries(output).filter(([, node]) => {
     if (node.class_type !== "RVKFinalizeSegments") return false;
     const directory = node.inputs?.output_directory;
@@ -30,7 +30,9 @@ export function finalizeOnlyPrompt(prompt, entryNodeId, outputDirectory) {
   });
   if (candidates.length !== 1) throw new Error("已有片段已完成：请连接唯一的 RVK Finalize Segments 以直接合成");
   if (typeof outputDirectory !== "string" || !outputDirectory) throw new Error("无法确定已完成片段的工作目录");
-  const [finalizeId, finalize] = candidates[0];
+  const [finalizeId, originalFinalize] = candidates[0];
+  const finalize = { ...originalFinalize, inputs: { ...originalFinalize.inputs } };
+  output[finalizeId] = finalize;
   finalize.inputs.output_directory = outputDirectory;
   delete finalize.inputs.loop_status;
   const retained = {};
