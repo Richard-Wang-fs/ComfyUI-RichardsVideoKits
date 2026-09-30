@@ -6,7 +6,7 @@ ComfyUI nodes for saving video segments, running an editable Wan Animate 2 workf
 
 Configure one Motion Transfer graph and queue once. RVK saves each completed segment before queuing the next. After a stop, failure or restart, choose `resume` to continue from complete segment videos in the working directory.
 
-Source version: **1.1.0**. The current source includes video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output. It also fixes frontend event handling, stale module loading and browser timers used for automatic continuation. These updates are available from this GitHub repository; the previously published [Comfy Registry](https://registry.comfy.org/richard34512/richards-video-kits) version is **1.0.0** and does not include them. This source update does not publish a new Registry version.
+Version **1.1.0** includes video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output. It also fixes frontend event handling, stale module loading and browser timers used for automatic continuation. Check the [Comfy Registry listing](https://registry.comfy.org/richard34512/richards-video-kits) for the published versions and their review status.
 
 ## Nodes
 
@@ -22,7 +22,7 @@ Source version: **1.1.0**. The current source includes video-based resume, statu
 
 Version 1.1.0 targets **Windows / NTFS, Python 3.12, ComfyUI v0.38.0, frontend 1.53.6**, with `--cache-classic`. The user reported a completed 15-segment run on this baseline; saved media was checked as 1173 frames / 39.1 seconds with audio. This is functional evidence, not a complete GPU/resource or failure-recovery validation. Historical Wan inference tests used v0.36.0 / frontend 1.52.7 on an RTX 4080.
 
-1. For the current **1.1.0 source and resume controls**, use the GitHub installation below. ComfyUI Manager's Registry version `1.0.0` remains available as **Richard's Video Kits** / `richards-video-kits`; it does not contain this update.
+1. In ComfyUI Manager, search for **Richard's Video Kits** / `richards-video-kits` and select **1.1.0** when available. Registry review status and Manager metadata refreshes can affect availability. The GitHub installation below provides the same source version.
 2. Keep only one RVK installation. Its `__init__.py`, `rvk/`, and `web/` must be directly inside one directory under `ComfyUI/custom_nodes/`.
 3. RVK uses PyAV, NumPy and PyTorch from ComfyUI's existing environment and adds no pip dependencies. For final assembly, ensure that **FFmpeg with AAC encoding** is available on the ComfyUI process's `PATH`; FFmpeg 7.0.2 was tested.
 4. Start ComfyUI with `--cache-classic`, refresh the browser, search for the five nodes above, and import [the loop workflow](examples/wan_animate2/wan_animate2_rvk_loop.json).
@@ -68,7 +68,7 @@ After updating, restart ComfyUI and refresh the browser. Save a copy of older wo
 - Input must be file-backed CFR video with an exactly representable frame timeline. Missing, short or offset audio is rejected by Finalize. Saved segments remain usable when finalization fails.
 - Resume is explicitly selected by the user; there are no persistent tensors, permanent image sequences, model downloads or bundled weights. Recovery rejects gaps, incompatible or damaged segments, and completed frames exceeding the current driving video's length.
 
-Current test baseline: [`v0.38.0`, `6b747c0428c343e1417219641db93a4fb7cb69ae`](https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.38.0). The example template and historical Wan evidence remain based on v0.36.0. See [tests](tests/README.md) for maintainer checks, [NOTICE](NOTICE.md) for workflow attribution and [PUBLISHING](PUBLISHING.md) for release maintenance.
+Current test baseline: [`v0.38.0`, `6b747c0428c343e1417219641db93a4fb7cb69ae`](https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.38.0). The example template and historical Wan evidence remain based on v0.36.0. See [tests](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/blob/main/tests/README.md) for maintainer checks, [NOTICE](NOTICE.md) for workflow attribution and [PUBLISHING](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/blob/main/PUBLISHING.md) for release maintenance.
 
 ## License
 
