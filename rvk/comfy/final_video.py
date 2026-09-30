@@ -64,11 +64,19 @@ class RVKFinalizeSegments(io.ComfyNode):
                 io.Video.Input("source_video"),
                 io.String.Input(
                     "output_directory",
+                    display_name="segment_directory",
                     default="rvk/run",
                     tooltip="Existing segment directory relative to the ComfyUI output directory.",
                 ),
                 io.String.Input("final_filename", default="final.mp4"),
                 RVK_WAN_LOOP_STATUS.Input("loop_status", optional=True),
+                io.String.Input(
+                    "destination_directory",
+                    display_name="output_directory",
+                    default="",
+                    optional=True,
+                    tooltip="Final video destination relative to ComfyUI output. Leave blank to use the segment directory.",
+                ),
             ],
             outputs=[
                 RVK_FINAL_VIDEO_RESULT.Output("result"),
@@ -94,6 +102,7 @@ class RVKFinalizeSegments(io.ComfyNode):
         output_directory,
         final_filename,
         loop_status: WanLoopStatus | None = None,
+        destination_directory: str = "",
     ) -> io.NodeOutput:
         expected_segment_count = None
         if loop_status is not None:
@@ -161,6 +170,7 @@ class RVKFinalizeSegments(io.ComfyNode):
             source_frame_count=source_frame_count,
             source_fps=source_fps,
             final_filename=final_filename,
+            destination_directory=destination_directory,
             expected_segment_count=expected_segment_count,
             cancel_check=throw_exception_if_processing_interrupted,
         )

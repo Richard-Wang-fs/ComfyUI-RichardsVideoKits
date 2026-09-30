@@ -76,12 +76,15 @@ class WanLoopStatus:
     has_more: bool
     stopped: bool
     path: str
+    total_segments: int = 0
 
 
 @dataclass(frozen=True, slots=True)
 class WanEntry:
     plan: WanSegmentPlan
     continuation: torch.Tensor | None
+    total_segments: int = 0
+    display_info: dict | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,6 +118,12 @@ class _WanRun:
     stop_requested: bool
     continuation: torch.Tensor | None
     ready_expires_at: float | None
+    total_segments: int = 0
+    resource: object | None = None
+    on_saved: Callable[[WanLoopStatus], None] | None = None
+    display_info: dict | None = None
+    is_prompt_active: Callable[[], bool] | None = None
+    prompt_id: str | None = None
 
 
 def validate_segment_length(value: object) -> int:
@@ -288,6 +297,8 @@ class WanRunRegistry:
         entry_key = None if state is None else (state.workflow_id, state.entry_node_id)
         if entry_key is not None and self._entry_tokens.get(entry_key) == token:
             del self._entry_tokens[entry_key]
+        if state is not None and state.resource is not None:
+            state.resource.release()
         return state
 
     def _cleanup_locked(self, now: float) -> tuple[str, ...]:
@@ -296,13 +307,47 @@ class WanRunRegistry:
         expired = tuple(
             token
             for token, state in self._runs.items()
-            if state.phase == "ready"
-            and state.ready_expires_at is not None
-            and state.ready_expires_at <= now
+            if (state.phase == "ready" and state.ready_expires_at is not None and state.ready_expires_at <= now)
+            or (state.phase == "in_flight" and self._prompt_finished(state))
         )
         for token in expired:
             self._drop_locked(token)
         return expired
+
+    @staticmethod
+    def _prompt_finished(state: _WanRun) -> bool:
+        if state.is_prompt_active is None:
+            return False
+        try:
+            return state.is_prompt_active() is False
+        except Exception:
+            # An unavailable queue is not evidence that its writer has stopped.
+            return False
+
+    def reclaim_finished_directory(self, directory: Path) -> tuple[str, ...]:
+        """Allow an explicit new/resume admission to supersede a finished prompt.
+
+        A ready run is normally kept for the automatic next prompt. If its browser
+        disappeared, a fresh resume can use disk once neither that prompt nor a
+        queued continuation is active. No timeout is used for in-flight work.
+        """
+        with self._lock:
+            tokens = tuple(token for token, state in self._runs.items()
+                           if getattr(state.resource, "directory", None) == directory
+                           and self._prompt_finished(state))
+            for token in tokens:
+                self._drop_locked(token)
+            return tokens
+
+    def finish_prompt(self, prompt_id: str) -> tuple[str, ...]:
+        """Release failed/incomplete executions even if their browser disconnected."""
+        with self._lock:
+            tokens = tuple(token for token, state in self._runs.items()
+                           if state.prompt_id == prompt_id
+                           and (state.phase == "in_flight" or state.stop_requested))
+            for token in tokens:
+                self._drop_locked(token)
+            return tokens
 
     def cleanup_expired(self) -> tuple[str, ...]:
         with self._lock:
@@ -344,6 +389,14 @@ class WanRunRegistry:
         segment_length: int,
         total_frames: int,
         fps: Fraction,
+        start_segment: int = 0,
+        start_offset: int = 0,
+        continuation: torch.Tensor | None = None,
+        resource: object | None = None,
+        on_saved: Callable[[WanLoopStatus], None] | None = None,
+        display_info: dict | None = None,
+        is_prompt_active: Callable[[], bool] | None = None,
+        prompt_id: str | None = None,
     ) -> WanEntry:
         length = validate_segment_length(segment_length)
         total = _positive_integer(total_frames, "total_frames")
@@ -369,9 +422,29 @@ class WanRunRegistry:
                         reason="duplicate_start",
                         actual=active,
                     )
+                if (
+                    isinstance(start_segment, bool) or not isinstance(start_segment, int) or start_segment < 0
+                    or isinstance(start_offset, bool) or not isinstance(start_offset, int)
+                    or start_offset < 0 or start_offset >= total
+                    or (start_segment == 0) != (start_offset == 0)
+                ):
+                    raise WanLoopError("resume position is invalid", reason="invalid_resume_position")
+                if start_segment and (
+                    not isinstance(continuation, torch.Tensor)
+                    or continuation.device.type != "cpu"
+                    or continuation.layout is not torch.strided
+                    or continuation.dtype not in {torch.float16, torch.bfloat16, torch.float32}
+                    or continuation.ndim != 4
+                    or continuation.shape[0] != 1 or continuation.shape[-1] != 3
+                    or continuation.shape[1] < 1 or continuation.shape[2] < 1
+                    or not continuation.is_contiguous()
+                    or continuation.untyped_storage().nbytes() != continuation.numel() * continuation.element_size()
+                    or not bool(torch.isfinite(continuation).all().item())
+                ):
+                    raise WanLoopError("resume requires one owned CPU frame", reason="invalid_continuation")
                 token = self._token_factory()
                 if not isinstance(token, str) or not token or token in self._runs:
-                    raise WanLoopError("run token generation failed", reason="invalid_run_token")
+                    raise WanLoopError("internal loop session creation failed", reason="invalid_run_token")
                 state = _WanRun(
                     token=token,
                     workflow_id=workflow_id,
@@ -381,12 +454,19 @@ class WanRunRegistry:
                     segment_length=length,
                     total_frames=total,
                     fps=frame_rate,
-                    segment_index=0,
-                    next_offset=0,
+                    segment_index=start_segment,
+                    next_offset=start_offset,
                     phase="in_flight",
                     stop_requested=False,
-                    continuation=None,
+                    continuation=continuation,
                     ready_expires_at=None,
+                    total_segments=(start_segment + math.ceil((total - start_offset) / (length - 1))
+                                    if start_segment else segment_count(total, length)),
+                    resource=resource,
+                    on_saved=on_saved,
+                    display_info=display_info,
+                    is_prompt_active=is_prompt_active,
+                    prompt_id=prompt_id,
                 )
                 self._runs[token] = state
                 self._entry_tokens[entry_key] = token
@@ -394,7 +474,7 @@ class WanRunRegistry:
                 token = token_input
                 state = self._runs.get(token)
                 if state is None:
-                    raise WanLoopError("run token is unknown or expired", reason="run_not_found", actual=token)
+                    raise WanLoopError("loop session ended; select resume to continue from saved videos", reason="run_not_found")
                 expected = (
                     state.workflow_id,
                     state.entry_node_id,
@@ -408,7 +488,7 @@ class WanRunRegistry:
                 if actual != expected:
                     self._drop_locked(token)
                     raise WanLoopError(
-                        "run inputs changed; start a new run",
+                        "running inputs changed; select resume to continue from saved videos with the new settings",
                         reason="run_configuration_changed",
                         actual=actual,
                         expected=expected,
@@ -424,6 +504,8 @@ class WanRunRegistry:
                     )
                 state.phase = "in_flight"
                 state.ready_expires_at = None
+                state.is_prompt_active = is_prompt_active
+                state.prompt_id = prompt_id
             plan = make_segment_plan(
                 run_token=state.token,
                 workflow_id=state.workflow_id,
@@ -435,7 +517,7 @@ class WanRunRegistry:
                 total_frames=state.total_frames,
                 fps=state.fps,
             )
-            return WanEntry(plan, state.continuation)
+            return WanEntry(plan, state.continuation, state.total_segments, state.display_info)
 
     def advance(
         self,
@@ -450,7 +532,7 @@ class WanRunRegistry:
             self._cleanup_locked(now)
             state = self._runs.get(plan.run_token)
             if state is None:
-                raise WanLoopError("run token is unknown or expired", reason="run_not_found", actual=plan.run_token)
+                raise WanLoopError("loop session ended; select resume to continue from saved videos", reason="run_not_found")
             if state.phase != "in_flight":
                 raise WanLoopError("segment is not in flight", reason="invalid_run_phase", actual=state.phase)
             expected_plan = make_segment_plan(
@@ -546,7 +628,16 @@ class WanRunRegistry:
                 has_more=has_more,
                 stopped=stopped,
                 path=receipt.path,
+                total_segments=state.total_segments,
             )
+            if state.on_saved is not None:
+                try:
+                    state.on_saved(status)
+                except Exception:
+                    # The formal video remains authoritative if its advisory
+                    # summary could not be written; a new resume can scan it.
+                    self._drop_locked(state.token)
+                    raise
             if not has_more:
                 self._drop_locked(state.token)
             else:
@@ -575,6 +666,17 @@ class WanRunRegistry:
         with self._lock:
             return self._drop_locked(token) is not None
 
+    def abort_after_prompt(self, token: str) -> bool:
+        """A browser error event may precede the worker leaving the live queue."""
+        with self._lock:
+            state = self._runs.get(token)
+            if state is None:
+                return False
+            if state.is_prompt_active is not None and not self._prompt_finished(state):
+                state.stop_requested = True
+                return True
+            return self._drop_locked(token) is not None
+
     def inspect(self, token: str) -> WanRunInspection | None:
         now = self._clock()
         with self._lock:
@@ -599,8 +701,8 @@ class WanRunRegistry:
 
     def clear(self) -> None:
         with self._lock:
-            self._runs.clear()
-            self._entry_tokens.clear()
+            for token in tuple(self._runs):
+                self._drop_locked(token)
 
 
 __all__ = [

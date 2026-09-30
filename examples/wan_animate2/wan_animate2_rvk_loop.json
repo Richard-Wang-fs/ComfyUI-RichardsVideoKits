@@ -165,12 +165,12 @@
           }
         },
         {
-          "localized_name": "run_token",
-          "name": "run_token",
-          "type": "STRING",
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
           "link": null,
           "widget": {
-            "name": "run_token"
+            "name": "mode"
           }
         }
       ],
@@ -217,8 +217,8 @@
           ]
         },
         {
-          "localized_name": "run_token",
-          "name": "run_token",
+          "localized_name": "status_text",
+          "name": "status_text",
           "type": "STRING",
           "links": []
         },
@@ -260,7 +260,7 @@
       "widgets_values": [
         81,
         "rvk/wan_animate2_new_run",
-        ""
+        "new"
       ]
     },
     {
@@ -773,7 +773,7 @@
           "link": 879
         },
         {
-          "localized_name": "output_directory",
+          "localized_name": "segment_directory",
           "name": "output_directory",
           "type": "STRING",
           "link": 880,
@@ -795,6 +795,15 @@
           "name": "loop_status",
           "type": "RVK_WAN_LOOP_STATUS",
           "link": 881
+        },
+        {
+          "localized_name": "output_directory",
+          "name": "destination_directory",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "destination_directory"
+          }
         }
       ],
       "outputs": [
@@ -828,7 +837,8 @@
       },
       "widgets_values": [
         "rvk/wan_animate2_new_run",
-        "final.mp4"
+        "final.mp4",
+        "rvk/wan_animate2_final"
       ]
     },
     {
@@ -850,7 +860,7 @@
       "properties": {
         "Node name for S&R": "MarkdownNote"
       },
-      "widgets_values": "# RVK Wan Animate 2 segmented loop\n\n1. Select your own reference image and untrimmed CFR driving video.\n2. Set the segment length only on **RVK Wan Animate 2 Loop Entry**. Its output is wired to the official length input; 81 is only the default.\n3. Choose a fresh relative output directory only on **RVK Wan Animate 2 Loop Entry**. It is preflighted before the model runs and wired to both Save and Finalize.\n4. Finalize waits until Advance reports all frames complete, then writes final.mp4 with the source audio. Existing files are never overwritten.\n5. Queue once. RVK queues the next prompt only after the previous MP4 was closed, verified, and published. Do not edit the graph while a run is active.\n6. Use the **Stop RVK after current segment** button on the Entry node to prevent another segment from being queued.\n\nThe Motion Transfer subgraph remains editable. Do not duplicate it for longer videos.",
+      "widgets_values": "# RVK Wan Animate 2 segmented loop\n\n1. Select your own reference image and untrimmed CFR driving video.\n2. Set the segment length only on **RVK Wan Animate 2 Loop Entry**. Its output is wired to the official length input; 81 is only the default.\n3. Set the working directory only on **RVK Wan Animate 2 Loop Entry**, wired to Save and Finalize's segment_directory. Choose **new** for an empty directory or **resume** for an interrupted run. Use Check / refresh to inspect saved progress and the current/recorded source filenames; verify the files yourself.\n4. Set the separate output_directory on Finalize (default rvk/wan_animate2_final). It waits until all frames are saved, then writes final.mp4 with the source audio. Existing files are never overwritten.\n5. Queue once. RVK queues the next prompt only after the previous MP4 was closed, verified, and published. Do not edit the graph while a run is active.\n6. Use the **Stop RVK after current segment** button on the Entry node to prevent another segment from being queued.\n\nThe Motion Transfer subgraph remains editable. Do not duplicate it for longer videos.",
       "title": "RVK Wan Animate 2 — start here"
     },
     {
@@ -872,7 +882,7 @@
       "properties": {
         "Node name for S&R": "MarkdownNote"
       },
-      "widgets_values": "# Output and limits\n\n- Each completed segment is an independent **silent MP4**; final.mp4 adds one audio track from the original drive video. No latent, tensor checkpoint, or permanent image sequence is written.\n- Current continuation is one in-memory CPU frame and can be lost on stop/crash; completed videos remain. Restart with a new output directory.\n- If all segments already exist after a restart, use finalize_existing_segments.json to create the final video without loading Wan.\n- Requires the fixed compatible ComfyUI/RVK environment and `--cache-classic`; the production default RAM-pressure cache is not validated for this loop.\n- The current exact window accepts an untrimmed file-backed CFR video whose time base represents frame indices exactly.\n- Missing/gapped/incompatible segments, missing or short source audio, and an existing final target stop with an error; nothing is overwritten.",
+      "widgets_values": "# Output and limits\n\n- Each completed segment is an independent **silent MP4**; final.mp4 adds one audio track from the original drive video. No latent, tensor checkpoint, or permanent image sequence is written.\n- Normal continuation keeps one in-memory CPU frame. After stop/crash, select **resume** and the same working directory: RVK validates complete videos and takes the previous video's decoded last frame. Compression/postprocessing may change the recovered frame.\n- Input filenames are shown for your comparison; prompts and input identities are not matched automatically. A lightweight progress summary is advisory; verified videos determine the next frame and segment. No manual continuation image input is required.\n- If all segments already exist after a restart, use finalize_existing_segments.json to create the final video without loading Wan.\n- Requires the fixed compatible ComfyUI/RVK environment and `--cache-classic`; the production default RAM-pressure cache is not validated for this loop.\n- The current exact window accepts an untrimmed file-backed CFR video whose time base represents frame indices exactly.\n- Missing/gapped/incompatible segments, missing or short source audio, and an existing final target stop with an error; nothing is overwritten.",
       "title": "Output and current limits"
     }
   ],

@@ -2,4 +2,5 @@
 PUBLISHING.md
 .gitignore
 .gitattributes
+tests/
 # Runtime, user documentation, notices, license and examples stay in the archive.
