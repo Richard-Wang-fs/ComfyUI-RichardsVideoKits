@@ -10,6 +10,8 @@ Version **1.1.1** fixes an RVK frontend bug in `1.1.0` that could prevent unrela
 
 Video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output remain available. Check the [Comfy Registry listing](https://registry.comfy.org/richard34512/richards-video-kits) for available versions and their review status; publication does not mean scan approval. Refresh Manager metadata if an available version is not listed.
 
+**Registry publication:** `1.1.1` was published on 2026-10-01 (Australia/Sydney). Public search, version-list and installation endpoints return the patch. All 27 downloaded files match the release tag, package links pass, and isolated CPU import registers all five nodes. The scan status was **Pending** at verification; scan approval, a Manager UI installation and real-browser/GPU validation of this patch have not been established.
+
 ## Nodes
 
 | Node | Purpose |

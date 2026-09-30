@@ -24,12 +24,18 @@ Older Manager installations can use a separate metadata database. If legacy disc
 
 ## Current prerequisites
 
-- Patch version `1.1.1` fixes the global frontend queue hook in `1.1.0`: requests without Loop Entry pass through unchanged, RVK requests support JSON-compatible Proxy objects without whole-graph cloning, and unrelated graph loading leaves metadata untouched. Users on `1.1.0` should upgrade to `1.1.1` when available. Do not claim publication or scan approval until the release checks succeed.
+- Patch version `1.1.1` fixes the global frontend queue hook in `1.1.0`: requests without Loop Entry pass through unchanged, RVK requests support JSON-compatible Proxy objects without whole-graph cloning, and unrelated graph loading leaves metadata untouched. Users on `1.1.0` should upgrade to `1.1.1`. Its publication checks below passed; scan approval remains pending.
 - The compatibility boundary remains Windows/NTFS, Python `3.12`, ComfyUI `0.38.0`, frontend `1.53.6` and `--cache-classic`. The patch has 75 passing Node/VM regressions, including 18 new checks that fail against the previous source; real-browser, original-workflow and GPU validation of this patch remain unperformed. Existing VIDEO, resume, status and output-directory behavior is retained.
 - Current functional evidence includes a user-reported completed 15-segment run, with saved media checked as 1173 frames / 39.1 seconds and audio. This does not establish a full GPU resource profile or comprehensive interruption-recovery validation. See the README for remaining limits.
 - GitHub owner/repository: `Richard-Wang-fs/ComfyUI-RichardsVideoKits`.
 - Project license: PolyForm Noncommercial 1.0.0. Upstream workflow template MIT notice included under `licenses/`.
 - Registry publisher: `richard34512`; the maintainer has configured `REGISTRY_ACCESS_TOKEN` as a GitHub repository secret. Its validity is checked during publication.
+
+## 1.1.1 publication evidence
+
+- Published on 2026-10-01 (Australia/Sydney), [Actions run 36747054759](https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits/actions/runs/36747054759) succeeded. Tag `v1.1.1` points to commit `8c5cc0820a48b950414de26f505e6e9302fe5b1f`. Public search and the Active/Pending version query return the project and patch; both default and explicit-version installation endpoints return `1.1.1`. The version scan status was **Pending** at verification, not approved.
+- The actual Registry archive is 86,561 bytes, SHA-256 `378c24a68c4a814188b5de9ef6aaf2e753fe5917aa0c2cb8f8795ef711f2cf7a`. All 27 files match the immutable tag byte for byte; all 17 runtime files, including both patched frontend modules, match the tested candidate. ZIP path checks and all 18 package-relative documentation links passed.
+- Isolated CPU import of the downloaded package registered all five nodes. These checks do not establish a production Manager UI installation, real-browser execution of the user's workflow, or GPU behavior. Follow-up publication-status documentation on `main` does not change the immutable tag or archive.
 
 ## Historical 1.1.0 publication evidence
 
