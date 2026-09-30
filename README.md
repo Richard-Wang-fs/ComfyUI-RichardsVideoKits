@@ -6,9 +6,9 @@ ComfyUI nodes for saving video segments, running an editable Wan Animate 2 workf
 
 Configure one Motion Transfer graph and queue once. RVK saves each completed segment before queuing the next. After a stop, failure or restart, choose `resume` to continue from complete segment videos in the working directory.
 
-Version **1.1.0** includes video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output. It also fixes frontend event handling, stale module loading and browser timers used for automatic continuation. Check the [Comfy Registry listing](https://registry.comfy.org/richard34512/richards-video-kits) for the published versions and their review status.
+Version **1.1.1** fixes an RVK frontend bug in `1.1.0` that could prevent unrelated workflows from queuing with a `DataCloneError`, even when they contained no RVK nodes. Upgrade from `1.1.0`. Requests without Loop Entry now pass through unchanged, RVK requests accept JSON-compatible frontend Proxy objects without cloning the entire graph, and loading an unrelated graph no longer modifies its metadata.
 
-**Registry publication:** version `1.1.0` was published on 2026-10-01 (Australia/Sydney). The public search and install endpoints return this version, and the downloaded package registers all five nodes. Its scan status was `Pending` at verification; publication does not mean scan approval. Refresh Manager metadata if the version is not listed. The older `1.0.0` version is flagged.
+Video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output remain available. Check the [Comfy Registry listing](https://registry.comfy.org/richard34512/richards-video-kits) for available versions and their review status; publication does not mean scan approval. Refresh Manager metadata if an available version is not listed.
 
 ## Nodes
 
@@ -22,9 +22,9 @@ Version **1.1.0** includes video-based resume, status controls on Loop Entry, se
 
 ## Installation
 
-Version 1.1.0 targets **Windows / NTFS, Python 3.12, ComfyUI v0.38.0, frontend 1.53.6**, with `--cache-classic`. The user reported a completed 15-segment run on this baseline; saved media was checked as 1173 frames / 39.1 seconds with audio. This is functional evidence, not a complete GPU/resource or failure-recovery validation. Historical Wan inference tests used v0.36.0 / frontend 1.52.7 on an RTX 4080.
+Version 1.1.1 targets **Windows / NTFS, Python 3.12, ComfyUI v0.38.0, frontend 1.53.6**, with `--cache-classic`. Before this patch, the user reported a completed 15-segment run on this baseline; saved media was checked as 1173 frames / 39.1 seconds with audio. This is functional evidence for the loop, not a browser/GPU validation of the patch or a complete resource or failure-recovery validation. Historical Wan inference tests used v0.36.0 / frontend 1.52.7 on an RTX 4080.
 
-1. In ComfyUI Manager, search for **Richard's Video Kits** / `richards-video-kits` and select **1.1.0** when available. Registry review status and Manager metadata refreshes can affect availability. The GitHub installation below provides the same source version.
+1. In ComfyUI Manager, search for **Richard's Video Kits** / `richards-video-kits` and select **1.1.1** when available. Registry review status and Manager metadata refreshes can affect availability. The GitHub installation below uses the current `main` source.
 2. Keep only one RVK installation. Its `__init__.py`, `rvk/`, and `web/` must be directly inside one directory under `ComfyUI/custom_nodes/`.
 3. RVK uses PyAV, NumPy and PyTorch from ComfyUI's existing environment and adds no pip dependencies. For final assembly, ensure that **FFmpeg with AAC encoding** is available on the ComfyUI process's `PATH`; FFmpeg 7.0.2 was tested.
 4. Start ComfyUI with `--cache-classic`, refresh the browser, search for the five nodes above, and import [the loop workflow](examples/wan_animate2/wan_animate2_rvk_loop.json).
@@ -64,7 +64,8 @@ After updating, restart ComfyUI and refresh the browser. Save a copy of older wo
 
 ## Tested limits
 
-- Current evidence: CPU/media checks, 57 passing frontend regression tests, and the user-reported 15-segment / 1173-frame completion described above. Historical evidence includes real three-segment Wan runs with a short tail, public Stop, and separate 12-segment / 903-frame finalization with AAC audio.
+- Patch evidence: 75 passing Node/VM frontend regression tests, including 18 new isolation and Proxy tests that fail against the previous code. These tests do not establish real-browser or GPU behavior; the user's original workflow has not yet been rerun against the patch.
+- Earlier evidence: CPU/media checks and the user-reported 15-segment / 1173-frame completion described above. Historical evidence includes real three-segment Wan runs with a short tail, public Stop, and separate 12-segment / 903-frame finalization with AAC audio.
 - The short Wan test used a silent input, so its finalization correctly rejected missing audio; it was not an end-to-end audio test.
 - Not validated: a full three-minute resource profile, interruption during active inference, segments taking more than 30 minutes, other filesystems, or equivalent memory behavior with the default RAM-pressure cache.
 - Input must be file-backed CFR video with an exactly representable frame timeline. Missing, short or offset audio is rejected by Finalize. Saved segments remain usable when finalization fails.

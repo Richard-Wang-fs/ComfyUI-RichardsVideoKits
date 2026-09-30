@@ -4,15 +4,15 @@
 
 一组 ComfyUI 视频节点：逐段保存视频、用一份可编辑的官方 Wan Animate 2 单段图自动处理驱动视频，并将完整片段合成为带原视频声音的成品。
 
-版本 **1.1.0** 包含按视频断点恢复、Entry 节点状态和控制按钮、独立成品目录，以及 Finalize 的标准 `VIDEO` 输出，并修复前端事件处理、旧模块缓存和浏览器计时器造成的续排问题。已发布版本及审核状态以 [Comfy Registry 页面](https://registry.comfy.org/richard34512/richards-video-kits) 为准。
+版本 **1.1.1** 修复了 `1.1.0` 的 RVK 前端缺陷：即使工作流完全不含 RVK 节点，也可能在提交时被 `DataCloneError` 阻断。**请从 1.1.0 升级。** 无 Loop Entry 的请求现在原样放行；RVK 请求兼容可正常 JSON 序列化的前端 Proxy，不再复制整个图；加载无关工作流也不再修改其元数据。
 
-**Registry 发布：** `1.1.0` 已于 2026-10-01（澳大利亚悉尼时间）发布。公开搜索和安装接口已返回该版本，下载包可加载全部五个节点。核对时扫描状态为 `Pending`，尚不代表审核通过；Manager 未显示时可刷新索引。旧版 `1.0.0` 当前为 Flagged。
+按视频断点恢复、Entry 节点状态和控制按钮、独立成品目录，以及 Finalize 的标准 `VIDEO` 输出仍然保留。可安装版本和审核状态以 [Comfy Registry 页面](https://registry.comfy.org/richard34512/richards-video-kits) 为准；发布成功不代表审核通过。Manager 未显示已可用版本时，可刷新索引。
 
 ## 安装
 
-1.1.0 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。用户已报告该环境正常完成 15 段生成；保存媒体核对为 1173 帧、39.1 秒，含音轨。这是功能运行证据，不等同于完整 GPU 资源或故障恢复验收。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080。
+1.1.1 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。本补丁之前，用户已报告该环境正常完成 15 段生成；保存媒体核对为 1173 帧、39.1 秒，含音轨。这是循环的功能运行证据，不代表本补丁已通过真实浏览器/GPU 验证，也不等同于完整资源或故障恢复验收。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080。
 
-1. 在 ComfyUI Manager 搜索 **Richard's Video Kits** 或 `richards-video-kits`，列表提供 **1.1.0** 时选择该版本。Registry 审核状态和 Manager 索引刷新会影响可用性；下方 GitHub 安装方式提供同版源码。
+1. 在 ComfyUI Manager 搜索 **Richard's Video Kits** 或 `richards-video-kits`，列表提供 **1.1.1** 时选择该版本。Registry 审核状态和 Manager 索引刷新会影响可用性；下方 GitHub 安装方式使用当前 `main` 源码。
 2. 只保留一份 RVK 安装。插件目录应直接包含 `__init__.py`、`rvk/` 和 `web/`，避免多嵌套一层。
 3. RVK 使用 ComfyUI 已有环境中的 PyAV、NumPy 和 PyTorch，无额外 pip 依赖。最终合成要求 ComfyUI 进程的 `PATH` 能找到带 AAC 编码器的 FFmpeg；已测试 FFmpeg 7.0.2。
 4. 以 `--cache-classic` 启动，刷新浏览器。搜索 RVK，应看到 Save Segment Video、Finalize Segments、Wan Animate 2 Loop Entry、Collect、Advance 五个节点，然后导入[完整循环示例](examples/wan_animate2/wan_animate2_rvk_loop.json)。示例不附带模型或素材。
@@ -50,7 +50,8 @@ git clone https://github.com/Richard-Wang-fs/ComfyUI-RichardsVideoKits.git custo
 
 - 视频必须来自文件、为 CFR，且时间基能精确表示帧号。最终合成还要求音轨从视频零点开始并覆盖完整视频；无音轨、明显偏移或音轨不足均明确拒绝，已保存片段不受影响。
 - 缺号、片段损坏或格式不兼容、累计帧数超过当前驱动视频时拒绝恢复。`.partial.mp4` 不计入进度；恢复取得目录独占后，将明确命名的 RVK 残留分段 partial 移入 `rvk_failed/` 保留。最终成品 partial 仍需确认没有写入进程后人工核对；独立 Finalize 拒绝未处理的 partial。`cleanup_required` 可能表示正式文件与其 partial 链接同时存在。
-- 当前证据包括 CPU/媒体检查、57 项前端回归测试，以及上述用户报告的 15 段完整运行。历史证据包括真实 Wan 三段含短尾、公开 Stop，以及独立 12 段 / 903 帧带 AAC 合成；三段短素材本身无音轨，其合成按预期拒绝。
+- 本补丁已通过 75 项 Node/VM 前端回归测试，其中新增 18 项隔离与 Proxy 测试在旧代码上全部失败。这些测试不代表真实浏览器或 GPU 验证；用户原始工作流尚未在补丁上重新运行。
+- 先前证据包括 CPU/媒体检查，以及上述用户报告的 15 段完整运行。历史证据包括真实 Wan 三段含短尾、公开 Stop，以及独立 12 段 / 903 帧带 AAC 合成；三段短素材本身无音轨，其合成按预期拒绝。
 - 约三分钟完整资源曲线、执行中中断、超过 30 分钟的单段、其他文件系统和默认 RAM-pressure cache 的同等内存表现尚未验证。
 - 断点恢复由用户显式选择；不下载模型，不附带权重或媒体。通用 Save 和 Finalize 可独立使用。
 
