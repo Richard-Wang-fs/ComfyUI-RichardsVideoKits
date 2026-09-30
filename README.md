@@ -8,6 +8,8 @@ Configure one Motion Transfer graph and queue once. RVK saves each completed seg
 
 Version **1.1.0** includes video-based resume, status controls on Loop Entry, separate final-output directories and Finalize's standard `VIDEO` output. It also fixes frontend event handling, stale module loading and browser timers used for automatic continuation. Check the [Comfy Registry listing](https://registry.comfy.org/richard34512/richards-video-kits) for the published versions and their review status.
 
+**Registry publication:** version `1.1.0` was published on 2026-10-01 (Australia/Sydney). The public search and install endpoints return this version, and the downloaded package registers all five nodes. Its scan status was `Pending` at verification; publication does not mean scan approval. Refresh Manager metadata if the version is not listed. The older `1.0.0` version is flagged.
+
 ## Nodes
 
 | Node | Purpose |

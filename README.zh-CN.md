@@ -6,6 +6,8 @@
 
 版本 **1.1.0** 包含按视频断点恢复、Entry 节点状态和控制按钮、独立成品目录，以及 Finalize 的标准 `VIDEO` 输出，并修复前端事件处理、旧模块缓存和浏览器计时器造成的续排问题。已发布版本及审核状态以 [Comfy Registry 页面](https://registry.comfy.org/richard34512/richards-video-kits) 为准。
 
+**Registry 发布：** `1.1.0` 已于 2026-10-01（澳大利亚悉尼时间）发布。公开搜索和安装接口已返回该版本，下载包可加载全部五个节点。核对时扫描状态为 `Pending`，尚不代表审核通过；Manager 未显示时可刷新索引。旧版 `1.0.0` 当前为 Flagged。
+
 ## 安装
 
 1.1.0 固定 **Windows / NTFS、Python 3.12、ComfyUI v0.38.0、frontend 1.53.6、`--cache-classic`**。用户已报告该环境正常完成 15 段生成；保存媒体核对为 1173 帧、39.1 秒，含音轨。这是功能运行证据，不等同于完整 GPU 资源或故障恢复验收。历史 Wan/GPU 证据来自 v0.36.0 / frontend 1.52.7 / RTX 4080。
